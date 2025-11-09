@@ -48,7 +48,7 @@ async def create_default_admin():
                 "email": "admin@clearsat.com",
                 "full_name": "System Administrator",
                 "role": UserRole.ADMIN,
-                "password_hash": get_password_hash("Admin123!"),
+                "password_hash": get_password_hash("Admin123"),
                 "created_at": datetime.utcnow(),
                 "last_login": datetime.utcnow(),
                 "is_active": True,
@@ -171,12 +171,14 @@ app.add_middleware(SlowAPIMiddleware)
 
 # UPDATED CORS for production - REPLACE with your actual Netlify URL
 # Replace your current CORS middleware with this:
+# IMPROVE YOUR CORS:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://clearsat.netlify.app",
-        "https://clearsat-frontend.netlify.app",  # Add this too
+        "https://clearsat.netlify.app", 
+        "https://clearsat-frontend.netlify.app",
+        "https://*.netlify.app",  # ADD THIS WILDCARD
     ],
     allow_credentials=True,
     allow_methods=["*"],

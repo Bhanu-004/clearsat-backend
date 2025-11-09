@@ -170,13 +170,13 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
 # UPDATED CORS for production - REPLACE with your actual Netlify URL
+# Replace your current CORS middleware with this:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # Local dev
-        "https://clearsat.netlify.app",  # Your production frontend
-        "https://clearsat-backend.onrender.com",  # Your backend itself,  # ← REPLACE THIS with your actual Netlify URL
-        
+        "http://localhost:3000",
+        "https://clearsat.netlify.app",
+        "https://clearsat-frontend.netlify.app",  # Add this too
     ],
     allow_credentials=True,
     allow_methods=["*"],

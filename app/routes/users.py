@@ -162,7 +162,7 @@ async def guest_login(background_tasks: BackgroundTasks):
         "email": guest_email,
         "full_name": guest_name,
         "role": UserRole.GUEST,
-        "password_hash": get_password_hash(secrets.token_urlsafe(32)),
+        "password_hash": get_password_hash("guest_temp_password_123"),
         "created_at": datetime.utcnow(),
         "last_login": datetime.utcnow(),
         "is_active": True,

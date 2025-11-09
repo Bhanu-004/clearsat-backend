@@ -173,8 +173,10 @@ app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://inspiring-crepe-172cef.netlify.app",  # ← REPLACE THIS with your actual Netlify URL
-        "http://localhost:3000"
+        "http://localhost:3000",  # Local dev
+        "https://clearsat.netlify.app",  # Your production frontend
+        "https://clearsat-backend.onrender.com",  # Your backend itself,  # ← REPLACE THIS with your actual Netlify URL
+        
     ],
     allow_credentials=True,
     allow_methods=["*"],

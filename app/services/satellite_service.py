@@ -340,7 +340,92 @@ class SatelliteService:
 
     # Include all your other calculation methods exactly as they were:
     # calculate_bui, calculate_ndbi, calculate_lst, calculate_land_cover, etc.
-    
+    def calculate_bui(self, image_data: np.ndarray, satellite_type: str) -> np.ndarray:
+        """Calculate Built-Up Index (BUI)"""
+        try:
+            if satellite_type == 'landsat':
+                nir = image_data[:, :, 4]   # B5
+                swir = image_data[:, :, 5] # B6
+            elif satellite_type == 'sentinel':
+                nir = image_data[:, :, 7]  # B8
+                swir = image_data[:, :, 10] # B11
+            else:
+                return None
+        
+            bui = (nir - swir) / (nir + swir + 1e-10)
+            return np.clip(bui, -1, 1)
+        except Exception as e:
+           logger.error(f"BUI calculation error: {e}")
+           raise
+
+    def calculate_ndbi(self, image_data: np.ndarray, satellite_type: str) -> np.ndarray:
+        """Calculate NDBI"""
+        try:
+            if satellite_type == 'landsat':
+                nir = image_data[:, :, 4]   # B5
+                swir = image_data[:, :, 5] # B6
+            elif satellite_type == 'sentinel':
+               nir = image_data[:, :, 7]  # B8
+               swir = image_data[:, :, 10] # B11
+            else:
+              return None
+        
+            ndbi = (swir - nir) / (swir + nir + 1e-10)
+            return np.clip(ndbi, -1, 1)
+        except Exception as e:
+            logger.error(f"NDBI calculation error: {e}")
+            raise
+
+ 
+    def calculate_lst(self, image_data: np.ndarray, satellite_type: str) -> np.ndarray:
+        """Calculate Land Surface Temperature (LST)"""
+        try:
+            if satellite_type == 'landsat':
+                # Landsat 8 TIR band (B10)
+                tir = image_data[:, :, 9]  # B10
+                # Convert to Kelvin using radiance to temperature formula
+                lst = tir * 0.1  # Simplified scaling factor
+                lst_celsius = lst - 273.15
+                return np.clip(lst_celsius, -50, 60)
+            elif satellite_type == 'sentinel':
+                # Sentinel-2 does not have thermal bands; return None
+                return None
+            else:
+                return None
+        except Exception as e:
+            logger.error(f"LST calculation error: {e}")
+            raise
+
+    def calculate_land_cover(self, image_data: np.ndarray, satellite_type: str) -> np.ndarray:
+        """Placeholder land cover class map (3-class mock version)"""
+        try:
+            ndvi = self.calculate_ndvi(image_data, satellite_type)
+            ndwi = self.calculate_ndwi(image_data, satellite_type)
+
+            land = np.where(ndvi > 0.3, 1,
+                            np.where(ndwi > 0.3, 2, 0)).astype(np.uint8)
+
+        # 0 = Built-up, 1 = Vegetation, 2 = Water
+            return land
+        except Exception as e:
+            logger.error(f"Land cover calc error: {e}")
+            raise
+
+    def get_esa_landcover_stats(self, items, region):
+        """Simple ESA LULC stats placeholder (requires COG read for full logic)"""
+        try:
+        # Mock: return minimal breakdown so UI works
+        
+            return {
+                "vegetation": 60.0,
+                "water": 10.0,
+                "urban": 30.0
+           }
+        except Exception:
+            return {"vegetation":0,"water":0,"urban":0}
+
+
+
     def calculate_modis_ndvi(self, image_data: np.ndarray) -> np.ndarray:
         """Calculate NDVI from MODIS data"""
         try:
@@ -560,8 +645,11 @@ class SatelliteService:
                 'NDVI': self.calculate_ndvi,
                 'NDWI': self.calculate_ndwi,
                 'EVI': self.calculate_evi,
-                # Add other functions as needed
+                'BUI': self.calculate_bui,
+                'NDBI': self.calculate_ndbi,
+                'LST': self.calculate_lst
             }
+
             
             index_func = index_functions.get(analysis_type)
             if not index_func:

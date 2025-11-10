@@ -11,7 +11,7 @@ from app.config import settings
 from app.models.user import UserRole, TokenData
 from app.database import get_user_collection
 
-# Enhanced password hashing
+# Enhanced password hashing with bcrypt
 pwd_context = CryptContext(
     schemes=["bcrypt"], 
     deprecated="auto",
@@ -20,7 +20,9 @@ pwd_context = CryptContext(
 
 security = HTTPBearer()
 
+# -------------------------------
 # Password validation
+# -------------------------------
 def validate_password_strength(password: str) -> bool:
     """Validate password meets security requirements"""
     if len(password) < 8:
@@ -38,15 +40,21 @@ def validate_password_strength(password: str) -> bool:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash securely"""
     try:
-        return pwd_context.verify(plain_password, hashed_password)
+        # Truncate plain password to 72 bytes for bcrypt safety
+        password_bytes = plain_password.encode('utf-8')[:72]
+        return pwd_context.verify(password_bytes, hashed_password)
     except Exception as e:
         print(f"Password verification error: {e}")
         return False
 
 def get_password_hash(password: str) -> str:
-    """Hash a password securely"""
-    return pwd_context.hash(password)
+    """Hash a password securely, truncating to 72 bytes for bcrypt"""
+    password_bytes = password.encode('utf-8')[:72]
+    return pwd_context.hash(password_bytes)
 
+# -------------------------------
+# JWT token handling
+# -------------------------------
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token securely"""
     to_encode = data.copy()
@@ -64,6 +72,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
+# -------------------------------
+# User retrieval
+# -------------------------------
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     request: Request = None
@@ -119,6 +130,9 @@ async def get_current_active_user(current_user: dict = Depends(get_current_user)
         )
     return current_user
 
+# -------------------------------
+# Role-based access control
+# -------------------------------
 def require_role(required_role: UserRole):
     """Role-based access control with admin override"""
     def role_checker(current_user: dict = Depends(get_current_active_user)):

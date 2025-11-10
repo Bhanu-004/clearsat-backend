@@ -18,7 +18,7 @@ from app.config import settings
 from app.database import connect_to_mongo, close_mongo_connection, get_user_collection
 from app.routes import users, analysis, reports, profile
 from app.auth.auth import get_password_hash
-from app.services.earth_engine_service import ee_service
+from app.services.satellite_service import satellite_service as ee_service
 from app.models.user import UserRole
 
 # Configure logging
@@ -48,7 +48,7 @@ async def create_default_admin():
                 "email": "admin@clearsat.com",
                 "full_name": "System Administrator",
                 "role": UserRole.ADMIN,
-                "password_hash": get_password_hash("Admin123"),
+                "password_hash": get_password_hash("admin123"),
                 "created_at": datetime.utcnow(),
                 "last_login": datetime.utcnow(),
                 "is_active": True,

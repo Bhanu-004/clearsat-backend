@@ -31,7 +31,6 @@ class Settings:
     MONGODB_MIN_POOL_SIZE: int = int(os.getenv("MONGODB_MIN_POOL_SIZE", "10"))
     
     # External Services
-    EARTH_ENGINE_CREDENTIALS: str = os.getenv("EARTH_ENGINE_CREDENTIALS", "")
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     
     # Rate Limiting

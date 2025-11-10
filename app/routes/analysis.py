@@ -9,7 +9,7 @@ from typing import List, Optional
 from app.models.analysis import AnalysisCreate, AnalysisResponse, AnalysisStatus, AnalysisType, SatelliteSource
 from app.auth.auth import get_current_active_user
 from app.database import get_analysis_collection, get_user_collection
-from backend.app.services.satellite_service import ee_service
+from app.services.satellite_service import satellite_service as ee_service
 from app.config import settings
 
 logger = logging.getLogger(__name__)
